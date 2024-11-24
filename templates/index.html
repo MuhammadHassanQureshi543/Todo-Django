@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">To-Do List</h1>
+        
+        <!-- Task Input Form -->
+        <form method="POST" class="input-group mb-4">
+            {% csrf_token %}
+            <input type="text" class="form-control" name="task" placeholder="Enter a task" required>
+            <button class="btn btn-primary" type="submit">Add</button>
+        </form>
+        
+        <!-- Task List -->
+         {% for i in data %}
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ i.title }}</span>
+                <div>
+                    <button class="btn btn-warning btn-sm me-2" onclick="openPopup('{{ i.id }}', '{{ i.title }}')">Edit</button>
+                    <form method="POST" action="/delte" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="obj_id" value="{{i.id}}">
+                        <input type="hidden" name="obj_title" value="{{i.title}}">
+                        <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+        {% endfor %}
+    </div>
+
+    <!-- Edit Task Popup -->
+    <div id="popup" class="popup d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+        <div class="popup-content bg-white p-4 rounded shadow w-50">
+            <h2 class="mb-3">Edit Task</h2>
+            <form method="POST" action="/update">
+                {% csrf_token %}
+                <input type="hidden" name="task_id" id="task_id">
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="new_title" id="new_title" placeholder="Enter new title" required>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" onclick="closePopup()">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to open the popup
+        function openPopup(taskId, taskTitle) {
+            // Populate the hidden input field and the title field in the popup
+            document.getElementById('task_id').value = taskId;
+            document.getElementById('new_title').value = taskTitle;
+
+            // Display the popup
+            document.getElementById('popup').classList.remove('d-none');
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            // Hide the popup
+            document.getElementById('popup').classList.add('d-none');
+        }
+    </script>
+</body>
+</html>
